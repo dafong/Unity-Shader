@@ -1,4 +1,6 @@
-﻿Shader "Custom/WordSpace"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/WordSpace"
 {
 	Properties{
 		_Point ("a point in world space", Vector) = (0.,0.,0.,1.0)
@@ -33,7 +35,7 @@
 			vertexOutput vert(vertexInput input){
 				vertexOutput output;
 				output.pos = mul(UNITY_MATRIX_MVP, input.vertex);
-				output.position_in_world_space = mul(_Object2World,input.vertex);
+				output.position_in_world_space = mul(unity_ObjectToWorld,input.vertex);
 				return output;
 			}
 
