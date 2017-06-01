@@ -1,4 +1,6 @@
-﻿Shader "Custom/SimpleShader" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/SimpleShader" {
 	
 	SubShader {
 		Pass{
@@ -9,7 +11,7 @@
 			#pragma fragment frag
 
 			float4 vert(float4 vertexPos : POSITION) : SV_POSITION{
-				return mul(UNITY_MATRIX_MVP,float4(1.0,0.1,1.0,1.0) * vertexPos);
+				return UnityObjectToClipPos(float4(1.0,0.1,1.0,1.0) * vertexPos);
 			}
 
 			float4 frag(void) : COLOR{

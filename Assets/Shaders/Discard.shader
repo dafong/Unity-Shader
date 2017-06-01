@@ -1,4 +1,6 @@
-﻿Shader "Custom/Discard"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Discard"
 {
 	
 	SubShader
@@ -24,7 +26,7 @@
 			vertexOutput vert(vertexInput input){
 				vertexOutput output;
 				                 
-				output.pos = mul(UNITY_MATRIX_MVP,input.vertex);
+				output.pos = UnityObjectToClipPos(input.vertex);
 				output.posInObjectCoords = input.vertex;
 				return output;
 			}

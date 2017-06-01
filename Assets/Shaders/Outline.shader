@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
 Shader "Custom/Outline"
@@ -37,7 +39,7 @@ Shader "Custom/Outline"
 			vertexOutput vert(vertexInput input){
 				vertexOutput output;
 				output.normal = normalize( mul( float4(input.normal,0.0), unity_WorldToObject ).xyz);
-				output.pos = mul(UNITY_MATRIX_MVP,input.vertex);
+				output.pos = UnityObjectToClipPos(input.vertex);
 				output.viewDir = normalize( _WorldSpaceCameraPos - mul(input.vertex,unity_ObjectToWorld ).xyz );
 				return output;
 			}

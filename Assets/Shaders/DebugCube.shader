@@ -1,4 +1,6 @@
-﻿Shader "Custom/DebugCube"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/DebugCube"
 {
 	SubShader
 	{
@@ -27,7 +29,7 @@
 
 			vertexOutput vert(vertexInput input){
 				vertexOutput output;
-				output.pos = mul(UNITY_MATRIX_MVP,input.vertex);
+				output.pos = UnityObjectToClipPos(input.vertex);
 				output.col = radians(input.texcoord+float4(30.0,30.0,30.0,1.0));
 				return output;
 			}
