@@ -1,4 +1,6 @@
-﻿Shader "Custom/Discard2"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/Discard2"
 {
 	
 
@@ -26,7 +28,7 @@
 			vertexOutput vert(vertexInput input) {
 				vertexOutput output;
 				output.pos = mul(UNITY_MATRIX_MVP,input.vertex);
-				output.localPos = mul(_matrix , mul(_Object2World,input.vertex)) ;
+				output.localPos = mul(_matrix , mul(unity_ObjectToWorld,input.vertex)) ;
 
 				return output;
 			}
@@ -62,7 +64,7 @@
 			vertexOutput vert(vertexInput input) {
 				vertexOutput output;
 				output.pos = mul(UNITY_MATRIX_MVP,input.vertex);
-				output.localPos = mul(_matrix , mul(_Object2World,input.vertex)) ;
+				output.localPos = mul(_matrix , mul(unity_ObjectToWorld,input.vertex)) ;
 
 				return output;
 			}
