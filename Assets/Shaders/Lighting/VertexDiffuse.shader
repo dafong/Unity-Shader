@@ -4,6 +4,8 @@ Shader "Custom/VertexDiffuse"
 	Properties
 	{
 	    _Color("Color",Color) = (1,1,1,1)
+	    _Shininess("Shininess",float) = 10
+	    _SpecColor("Spec Color",Color) = (1,1,1,1)
 	}
 	SubShader
 	{
@@ -23,6 +25,9 @@ Shader "Custom/VertexDiffuse"
 
 			uniform float4 _Color;
 
+			uniform float _Shininess;
+
+			uniform float4 _SpecColor;
 
 			struct vertexInput{
 				float4 vertex : POSITION;
@@ -37,9 +42,9 @@ Shader "Custom/VertexDiffuse"
 			vertexOutput vert(vertexInput input){
 				vertexOutput output;
 
-				float3 normal = normalize( mul( float4(input.normal,0.0) , unity_WorldToObject).xyz );
+				float3 normalDir = normalize( mul( float4(input.normal,0.0) , unity_WorldToObject).xyz );
 
-
+				float3 viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld,input.vertex).xyz);
 				float3 lightVec         =  _WorldSpaceLightPos0.xyz - mul(unity_ObjectToWorld,input.vertex).xyz;
 				float one_over_distance = 1.0 / length(lightVec);
 				float attenuation       = lerp(1.0,one_over_distance,_WorldSpaceLightPos0.w);
@@ -47,9 +52,17 @@ Shader "Custom/VertexDiffuse"
 
 
 
-				float3 col =attenuation * _Color.rgb * _LightColor0.rgb * max(0,dot(normal,lightDir));
+				float3 col =attenuation * _Color.rgb * _LightColor0.rgb * max(0,dot(normalDir,lightDir));
+				float3 ambientLighting = unity_AmbientSky.rgb * _Color.rgb;
+				float3 specularReflection;
+				if( dot(normalDir,lightDir) < 0 ){ //large tha 90 degree
+					specularReflection = float3(0,0,0);
+				}else{
+					float intesify = pow( max( 0 , dot(reflect(-lightDir,normalDir) , viewDir ) ),_Shininess );
+					specularReflection = attenuation * _LightColor0.rgb * _SpecColor.rgb * intesify;
+				}
 
-				output.col = float4(col,1.0); 
+				output.col = float4(col + ambientLighting + specularReflection,1.0); 
 				output.pos = UnityObjectToClipPos(input.vertex);
 
 				return output;
@@ -77,7 +90,11 @@ Shader "Custom/VertexDiffuse"
 	            // color of light source (from "Lighting.cginc")
 	 
 	         uniform float4 _Color; // define shader property for shaders
-	 
+
+	         uniform float _Shininess;
+
+  			 uniform float4 _SpecColor;
+
 	         struct vertexInput {
 	            float4 vertex : POSITION;
 	            float3 normal : NORMAL;
@@ -91,7 +108,7 @@ Shader "Custom/VertexDiffuse"
 				vertexOutput output;
 
 				float3 normalDir = normalize( mul( float4(input.normal,0.0) , unity_WorldToObject).xyz );
-
+				float3 viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld,input.vertex).xyz);
 				float3 lightVec         = _WorldSpaceLightPos0.xyz -  mul(input.vertex,unity_ObjectToWorld).xyz ;
 				float one_over_distance = 1.0 / length(lightVec);
 				float attenuation       = lerp(1.0,one_over_distance,_WorldSpaceLightPos0.w);
@@ -100,8 +117,18 @@ Shader "Custom/VertexDiffuse"
 
 
 				float3 col =attenuation * _Color.rgb * _LightColor0.rgb * max(0,dot(normalDir,lightDir));
+				float3 ambientLighting = unity_AmbientSky.rgb * _Color.rgb;
+				float3 specularReflection;
+				if( dot(normalDir,lightDir) < 0 ){ //large tha 90 degree
+					specularReflection = float3(0,0,0);
+				}else{
+					float intesify = pow( max( 0 , dot(reflect(-lightDir,normalDir) , viewDir ) ),_Shininess );
+					specularReflection = attenuation * _LightColor0.rgb * _SpecColor.rgb * intesify;
+				}
 
-				output.col = float4(col,1.0); 
+
+
+				output.col = float4(col + specularReflection ,1.0); 
 				output.pos = UnityObjectToClipPos(input.vertex);
 
 				return output;
@@ -117,5 +144,5 @@ Shader "Custom/VertexDiffuse"
       	}
 
 	}
-	 Fallback "Diffuse"
+//	 Fallback "Diffuse"
 }
