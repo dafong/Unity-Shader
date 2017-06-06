@@ -1,9 +1,4 @@
-﻿#warning Upgrade NOTE: unity_Scale shader variable was removed; replaced '_WorldSpaceCameraPos.w' with '1.0'
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
-
+﻿
 Shader "Custom/LightingTexture"
 {
 	Properties
@@ -56,7 +51,7 @@ Shader "Custom/LightingTexture"
 				//diffuse color
 				float3 lightVec = _WorldSpaceLightPos0.xyz - mul(input.vertex, unity_ObjectToWorld).xyz;
 				float  step_over_distance = 1 / length(lightVec);
-				float attenuation = lerp(1,step_over_distance,1.0);
+				float attenuation = lerp(1,step_over_distance,_WorldSpaceLightPos0.w);
 				float3 lightDir = lightVec * step_over_distance;
 
 				float3 diffuseCol = _LightColor0.rgb * _Color.rgb * attenuation * max(0,dot(normalDir,lightDir));
