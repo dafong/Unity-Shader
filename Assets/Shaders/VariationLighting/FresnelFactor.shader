@@ -61,7 +61,7 @@
 				if(dot(lightDir,normalDir) > 0){
 					float3 cosine  = max(0,dot(reflect(-lightDir,normalDir),viewDir));
 					float3 halfwayDir = normalize(lightDir + viewDir);
-					float w = pow(1,)
+//					float w = pow(1,5)
 					specularReflect= attenuation * _SpecColor.rgb * _LightColor0.rgb * pow(cosine,_Shininess);
 				}
 
