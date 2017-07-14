@@ -1,11 +1,11 @@
-﻿Shader "Custom/Geometry" {
+﻿Shader "Custom/OutlineShell" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
 		_EmissionColor ("Emission Color" , Color) = (1,1,1,1)
-		_Amount("Amount",float) = 0
+		_Outline("Outline",Range(0,1)) = 0
 		_OutlineColor("Outline Color",Color) = (0,0,0,0)
 	}
 	SubShader {
@@ -14,7 +14,7 @@
 		LOD 200
 
 		Pass{
-			Name "Geometry"
+			Name "ShellOutline"
 
             Cull Front
             CGPROGRAM
@@ -28,31 +28,41 @@
 
             struct appdata {
             	float4 vertex : POSITION;
-            	float4 uv     : TEXCOORD0;
             	float3 normal : NORMAL;
             };
 
-            uniform float  _Amount;
+            uniform float  _Outline;
             uniform float4 _OutlineColor;
+             
             struct v2f{
             	float4 pos : SV_POSITION;
-            	float4 uv  : TEXCOORD0;
             };
 
+            void ShellMethod0(appdata i,inout v2f o){
+            	o.pos = UnityObjectToClipPos(i.vertex);
+            	float3 normal = mul(UNITY_MATRIX_IT_MV,float4(i.normal,0)).xyz;
+            	float2 offset = mul(UNITY_MATRIX_P,float4(normal,0)).xy;
+            	o.pos.xy += offset * o.pos.z * _Outline;
+            }
+
+            void ShellMethod1(appdata i,inout v2f o){
+            	float3 vpos   = UnityObjectToViewPos(i.vertex);
+            	float3 normal = mul(UNITY_MATRIX_IT_MV,float4(i.normal,0)).xyz;
+            	normal.z = -1;
+            	vpos += normalize(normal) * _Outline;
+            	o.pos = mul(UNITY_MATRIX_P,float4(vpos,0));
+            }
 
 			v2f vert(appdata v){
 				v2f o;
-				o.pos = UnityObjectToClipPos(v.vertex + v.normal * _Amount);
-				o.uv  = v.uv;
+//				ShellMethod0(v, o);
+				ShellMethod1(v, o);
 				return o;
 			}
 
 			float4 frag(v2f i) : COLOR{
 				return _OutlineColor;
    		    }
-
-
-
             ENDCG
 		}
 
