@@ -1,6 +1,8 @@
 # Unity Shader Examples
 
-A summary of unity shader study resourc
+A summary of unity shader study resources.
+
+
 
 ## Content
 
