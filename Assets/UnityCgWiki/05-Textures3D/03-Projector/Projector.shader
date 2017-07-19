@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Projector' with 'unity_Projector'
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
+﻿//the shader attached the projector will be applied every Geometry which in the projector range
 Shader "Custom/Projector"
 {
 	Properties {
@@ -9,7 +7,7 @@ Shader "Custom/Projector"
    SubShader {
       Pass {      
          Blend SRCALPHA ONEMINUSSRCALPHA 
-            // add color of _ShadowTex to the color in the framebuffer 
+          
          ZWrite Off // don't change depths
          Offset -1, -1 // avoid depth fighting
 
@@ -49,10 +47,7 @@ Shader "Custom/Projector"
          {
             if (input.posProj.w > 0.0) // in front of projector?
             {
-               return tex2D(_ShadowTex , 
-                  input.posProj.xy / input.posProj.w); 
-               // alternatively: return tex2Dproj(  
-               //    _ShadowTex, input.posProj);
+                return tex2Dproj(_ShadowTex, input.posProj);
             }
             else // behind projector
             {
