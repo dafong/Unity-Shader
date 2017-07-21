@@ -1,5 +1,13 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
+
+//As mentioned, Unity comes with many ready-to-use image effects in Standard Assets > Effects > ImageEffects. 
+//The C# scripts and the corresponding shader files are a great resource to learn more about the programming 
+//of shader effects. Often, they are also a good starting point for your own image effects. However,
+//some of the scripts and shaders are quite complex. For a smooth start, you should first look at the scripts
+// "ColorCorrectionRamp" (with the shader "ColorCorrectionEffect"), "Grayscale" (with the shader "GrayscaleEffect")
+// or "SepiaTone" (with the shader "SepiaToneEffect").
+
 Shader "Custom/ImageEffect"
 {
 	Properties
