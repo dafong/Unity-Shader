@@ -9,63 +9,46 @@
 	}
 	SubShader
 	{
-		ZTest Always
-		Cull Off
-		ZWrite Off
-
-		LOD 100
 
 		Pass
 		{
+
+				ZTest Always Cull Off ZWrite Off
+			
 			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			// make fog work
-			#pragma multi_compile_fog
 			
 			#include "UnityCG.cginc"
-
-			struct appdata
-			{
-				float4 vertex : POSITION;
-				float2 uv : TEXCOORD0;
-			};
-
-			struct v2f
-			{
-				float2 uv[9] : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
-				float4 vertex : SV_POSITION;
-			};
-
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
-			float4 _MainTex_TexelSize;
-			float _EdgeOnly;
-			float4 _EdgeColor;
-			float4 _BackgroundColor;
-
 			
-			v2f vert (appdata v)
-			{
+			#pragma vertex vert  
+			#pragma fragment frag
+			
+			sampler2D _MainTex;  
+			uniform half4 _MainTex_TexelSize;
+			fixed _EdgeOnly;
+			fixed4 _EdgeColor;
+			fixed4 _BackgroundColor;
+			
+			struct v2f {
+				float4 pos : SV_POSITION;
+				half2 uv[9] : TEXCOORD0;
+			};
+			  
+			v2f vert(appdata_img v) {
 				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
-
-				float2 uv = TRANSFORM_TEX(v.uv, _MainTex);
-
-				o.uv[0] = uv + _MainTex_TexelSize.xy * half2(-1,-1);
-				o.uv[1] = uv + _MainTex_TexelSize.xy * half2(0,-1);
-				o.uv[2] = uv + _MainTex_TexelSize.xy * half2(1,-1);
-				o.uv[3] = uv + _MainTex_TexelSize.xy * half2(-1,0);
-				o.uv[4] = uv + _MainTex_TexelSize.xy * half2(0,0);
-				o.uv[5] = uv + _MainTex_TexelSize.xy * half2(1,0);
-				o.uv[6] = uv + _MainTex_TexelSize.xy * half2(-1,1);
-				o.uv[7] = uv + _MainTex_TexelSize.xy * half2(0,1);
-				o.uv[8] = uv + _MainTex_TexelSize.xy * half2(1,1);
-
-
-
-				UNITY_TRANSFER_FOG(o,o.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
+				
+				half2 uv = v.texcoord;
+				
+				o.uv[0] = uv + _MainTex_TexelSize.xy * half2(-1, -1);
+				o.uv[1] = uv + _MainTex_TexelSize.xy * half2(0, -1);
+				o.uv[2] = uv + _MainTex_TexelSize.xy * half2(1, -1);
+				o.uv[3] = uv + _MainTex_TexelSize.xy * half2(-1, 0);
+				o.uv[4] = uv + _MainTex_TexelSize.xy * half2(0, 0);
+				o.uv[5] = uv + _MainTex_TexelSize.xy * half2(1, 0);
+				o.uv[6] = uv + _MainTex_TexelSize.xy * half2(-1, 1);
+				o.uv[7] = uv + _MainTex_TexelSize.xy * half2(0, 1);
+				o.uv[8] = uv + _MainTex_TexelSize.xy * half2(1, 1);
+						 
 				return o;
 			}
 
@@ -74,17 +57,13 @@
 			}
 
 			half Sobel(v2f i){
-				const half Gx[9]={
-					-1,-2,-1,
-					0,  0, 0,
-					1,  2, 1
-				};
+				const half Gx[9]={-1, 0, 1,
+					-2, 0, 2,
+					-1, 0, 1};
 
-				const half Gy[9]={
-					-1, 0, 1,
-					-2, 0, -2,
-					-1, 0, 1
-				};
+				const half Gy[9]={-1,-2,-1,
+					0,  0, 0,
+					1,  2, 1};
 
 				half texColor ;
 				half edgeX = 0;
@@ -108,4 +87,5 @@
 			ENDCG
 		}
 	}
+	FallBack Off
 }
