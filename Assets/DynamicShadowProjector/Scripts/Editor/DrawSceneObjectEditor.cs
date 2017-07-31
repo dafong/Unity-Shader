@@ -13,7 +13,7 @@ namespace DynamicShadowProjector.Editor {
 	[CustomEditor(typeof(DrawSceneObject))]
 	public class DrawSceneObjectEditor : EditorBase {
 		void OnEnable()
-		{ 
+		{
 			DrawSceneObject component = target as DrawSceneObject;
 			if (component.replacementShader == null) {
 				component.replacementShader = Shader.Find("Hidden/DynamicShadowProjector/Shadow/Replacement");

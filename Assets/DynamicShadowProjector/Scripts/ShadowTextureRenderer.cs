@@ -929,7 +929,7 @@ namespace DynamicShadowProjector {
 #else
 			m_camera.targetTexture = m_shadowTexture;
 #endif
-			if (m_superSampling != TextureSuperSample.x1 || HasShadowColor()) {
+//			if (m_superSampling != TextureSuperSample.x1 || HasShadowColor()) {
 				m_downsampleShader.color = m_shadowColor;
 				// downsample
 				RenderTexture dstRT;
@@ -945,51 +945,51 @@ namespace DynamicShadowProjector {
 				Graphics.Blit(srcRT, dstRT, m_downsampleShader, HasShadowColor() ? pass + 1 : pass);
 				RenderTexture.ReleaseTemporary(srcRT);
 				srcRT = dstRT;
-			}
-			if (0 < m_blurLevel) {
-				// adjust blur size according to texel aspect
-				float texelAspect = (m_projector.aspectRatio * m_textureHeight)/(float)m_textureWidth;
-				float blurSizeH = m_blurSize;
-				float blurSizeV = m_blurSize;
-				if (texelAspect < 1.0f) {
-					blurSizeV *= texelAspect;
-				}
-				else {
-					blurSizeH /= texelAspect;
-				}
-				// blur parameters
-				BlurParam blurH = GetBlurParam(blurSizeH, m_blurFilter);
-				BlurParam blurV = GetBlurParam(blurSizeV, m_blurFilter);
-				blurH.tap = (blurH.tap - 3); // index of pass
-				blurV.tap = (blurV.tap - 3) + 1; // index of pass
-				m_blurShader.SetVector(s_blurOffsetHParamID, blurH.offset);
-				m_blurShader.SetVector(s_blurOffsetVParamID, blurV.offset);
-				m_blurShader.SetVector(s_blurWeightHParamID, blurH.weight);
-				m_blurShader.SetVector(s_blurWeightVParamID, blurV.weight);
-
-				RenderTexture dstRT = RenderTexture.GetTemporary(m_textureWidth, m_textureHeight, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
-				dstRT.filterMode = FilterMode.Bilinear;
-				srcRT.wrapMode = TextureWrapMode.Clamp;
-				dstRT.wrapMode = TextureWrapMode.Clamp;
-				Graphics.Blit(srcRT, dstRT, m_blurShader, blurH.tap);
-				if (1 < srcRT.antiAliasing) {
-					RenderTexture.ReleaseTemporary(srcRT);
-					srcRT = RenderTexture.GetTemporary(m_textureWidth, m_textureHeight, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
-				}
-				else {
-					srcRT.DiscardContents();
-				}
-				for (int i = 1; i < m_blurLevel - 1; ++i) {
-					Graphics.Blit(dstRT, srcRT, m_blurShader, blurV.tap);
-					dstRT.DiscardContents();
-					Graphics.Blit(srcRT, dstRT, m_blurShader, blurH.tap);
-					srcRT.DiscardContents();
-				}
-				RenderTexture.ReleaseTemporary(srcRT);
-				srcRT = m_shadowTexture;
-				Graphics.Blit(dstRT, srcRT, m_blurShader, blurV.tap);
-				RenderTexture.ReleaseTemporary(dstRT);
-			}
+//			}
+//			if (0 < m_blurLevel) {
+//				// adjust blur size according to texel aspect
+//				float texelAspect = (m_projector.aspectRatio * m_textureHeight)/(float)m_textureWidth;
+//				float blurSizeH = m_blurSize;
+//				float blurSizeV = m_blurSize;
+//				if (texelAspect < 1.0f) {
+//					blurSizeV *= texelAspect;
+//				}
+//				else {
+//					blurSizeH /= texelAspect;
+//				}
+//				// blur parameters
+//				BlurParam blurH = GetBlurParam(blurSizeH, m_blurFilter);
+//				BlurParam blurV = GetBlurParam(blurSizeV, m_blurFilter);
+//				blurH.tap = (blurH.tap - 3); // index of pass
+//				blurV.tap = (blurV.tap - 3) + 1; // index of pass
+//				m_blurShader.SetVector(s_blurOffsetHParamID, blurH.offset);
+//				m_blurShader.SetVector(s_blurOffsetVParamID, blurV.offset);
+//				m_blurShader.SetVector(s_blurWeightHParamID, blurH.weight);
+//				m_blurShader.SetVector(s_blurWeightVParamID, blurV.weight);
+//
+//				RenderTexture dstRT = RenderTexture.GetTemporary(m_textureWidth, m_textureHeight, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
+//				dstRT.filterMode = FilterMode.Bilinear;
+//				srcRT.wrapMode = TextureWrapMode.Clamp;
+//				dstRT.wrapMode = TextureWrapMode.Clamp;
+//				Graphics.Blit(srcRT, dstRT, m_blurShader, blurH.tap);
+//				if (1 < srcRT.antiAliasing) {
+//					RenderTexture.ReleaseTemporary(srcRT);
+//					srcRT = RenderTexture.GetTemporary(m_textureWidth, m_textureHeight, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
+//				}
+//				else {
+//					srcRT.DiscardContents();
+//				}
+//				for (int i = 1; i < m_blurLevel - 1; ++i) {
+//					Graphics.Blit(dstRT, srcRT, m_blurShader, blurV.tap);
+//					dstRT.DiscardContents();
+//					Graphics.Blit(srcRT, dstRT, m_blurShader, blurH.tap);
+//					srcRT.DiscardContents();
+//				}
+//				RenderTexture.ReleaseTemporary(srcRT);
+//				srcRT = m_shadowTexture;
+//				Graphics.Blit(dstRT, srcRT, m_blurShader, blurV.tap);
+//				RenderTexture.ReleaseTemporary(dstRT);
+//			}
 			Graphics.SetRenderTarget(m_shadowTexture);
 			if (srcRT != m_shadowTexture) {
 				Graphics.Blit(srcRT, m_downsampleShader, 2);
@@ -998,117 +998,117 @@ namespace DynamicShadowProjector {
 				}
 			}
 			EraseShadowOnBoarder(m_textureWidth, m_textureHeight);
-			if (0 < m_mipLevel) {
-				// setup blur parameters
-				BlurParam blurH = new BlurParam(), blurV = new BlurParam();
-				if (0.1f < m_mipmapBlurSize) {
-					// adjust blur size according to texel aspect
-					float texelAspect = (m_projector.aspectRatio * m_textureHeight)/(float)m_textureWidth;
-					float blurSizeH = m_mipmapBlurSize;
-					float blurSizeV = m_mipmapBlurSize;
-					if (texelAspect < 1.0f) {
-						blurSizeV *= texelAspect;
-					}
-					else {
-						blurSizeH /= texelAspect;
-					}
-					// blur parameters
-					if (m_singlePassMipmapBlur) {
-						blurH = GetDownsampleBlurParam(2.0f + 2.0f*blurSizeH, m_blurFilter);
-						blurV = GetDownsampleBlurParam(2.0f + 2.0f*blurSizeV, m_blurFilter);
-						Vector4 weight = new Vector4(blurH.weight.x * blurV.weight.x, blurH.weight.x * blurV.weight.y, blurH.weight.y * blurV.weight.x, blurH.weight.y * blurV.weight.y);
-						float a = 0.25f/(weight.x + weight.y + weight.z + weight.w);
-						weight.x = Mathf.Round(255*a*weight.x)/255.0f;
-						weight.y = Mathf.Round(255*a*weight.y)/255.0f;
-						weight.z = Mathf.Round(255*a*weight.z)/255.0f;
-						weight.w = 0.25f - weight.x - weight.y - weight.z;
-						m_downsampleShader.SetVector(s_downSampleBlurWeightParamID, weight);
-					}
-					else {
-						blurH = GetBlurParam(blurSizeH, m_blurFilter);
-						blurV = GetBlurParam(blurSizeV, m_blurFilter);
-						blurH.tap = (blurH.tap - 3); // index of pass
-						blurV.tap = (blurV.tap - 3) + 1; // index of pass
-						m_blurShader.SetVector(s_blurOffsetHParamID, blurH.offset);
-						m_blurShader.SetVector(s_blurOffsetVParamID, blurV.offset);
-						m_blurShader.SetVector(s_blurWeightHParamID, blurH.weight);
-						m_blurShader.SetVector(s_blurWeightVParamID, blurV.weight);
-					}
-				}
-				int w = m_textureWidth >> 1;
-				int h = m_textureHeight >> 1;
-				RenderTexture tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
-				tempRT.filterMode = FilterMode.Bilinear;
-				bool downSampleWithBlur = m_singlePassMipmapBlur && 0.1f < m_mipmapBlurSize;
-				if (downSampleWithBlur) {
-					SetDownsampleBlurOffsetParams(blurH, blurV, w, h);
-				}
-				if (srcRT == m_shadowTexture) {
-					if (downSampleWithBlur) {
-						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 5);
-					}
-					else {
-						Graphics.Blit(srcRT, tempRT, m_copyMipmapShader, 1);
-					}
-				}
-				else {
-					Graphics.Blit(srcRT, tempRT, m_downsampleShader, downSampleWithBlur ? 4 : 0);
-					RenderTexture.ReleaseTemporary(srcRT);
-				}
-				srcRT = tempRT;
-				int i = 0;
-				float falloff = 1.0f;
-				for ( ; ; ) {
-					if (0.1f < m_mipmapBlurSize && !m_singlePassMipmapBlur) {
-						tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
-						tempRT.filterMode = FilterMode.Bilinear;
-						tempRT.wrapMode = TextureWrapMode.Clamp;
-						srcRT.wrapMode = TextureWrapMode.Clamp;
-						Graphics.Blit(srcRT, tempRT, m_blurShader, blurH.tap);
-						srcRT.DiscardContents();
-						Graphics.Blit(tempRT, srcRT, m_blurShader, blurV.tap);
-						RenderTexture.ReleaseTemporary(tempRT);
-					}
-					if (m_mipmapFalloff == MipmapFalloff.Linear) {
-						falloff = ((float)(m_mipLevel - i))/(m_mipLevel + 1.0f);
-					}
-					else if (m_mipmapFalloff == MipmapFalloff.Custom && m_customMipmapFalloff != null && 0 < m_customMipmapFalloff.Length) {
-						falloff = m_customMipmapFalloff[Mathf.Min(i, m_customMipmapFalloff.Length-1)];
-					}
-					m_copyMipmapShader.SetFloat(s_falloffParamID, falloff);
-					m_copyMipmapShader.SetFloat(s_falloffParamID, falloff);
-					m_shadowTexture.DiscardContents(); // To avoid Tiled GPU perf warning. It just tells GPU not to copy back the rendered image to a tile buffer. It won't destroy the rendered image.
-					++i;
-					Graphics.SetRenderTarget(m_shadowTexture, i);
-					Graphics.Blit(srcRT, m_copyMipmapShader, 0);
-					EraseShadowOnBoarder(w, h);
-					w = Mathf.Max(1, w >> 1);
-					h = Mathf.Max(1, h >> 1);
-					if (i == m_mipLevel || w <= 4 || h <= 4) {
-						RenderTexture.ReleaseTemporary(srcRT);
-						break;
-					}
-					tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
-					tempRT.filterMode = FilterMode.Bilinear;
-					if (downSampleWithBlur) {
-						SetDownsampleBlurOffsetParams(blurH, blurV, w, h);
-						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 4);
-					}
-					else {
-						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 0);
-					}
-					RenderTexture.ReleaseTemporary(srcRT);
-					srcRT = tempRT;
-				}
-				while (1 <= w || 1 <= h) {
-					++i;
-					Graphics.SetRenderTarget(m_shadowTexture, i);
-					GL.Clear(false, true, new Color(1,1,1,0));
-					w = w >> 1;
-					h = h >> 1;
-				}
-			}
-			m_shadowTextureValid = true;
+//			if (0 < m_mipLevel) {
+//				// setup blur parameters
+//				BlurParam blurH = new BlurParam(), blurV = new BlurParam();
+//				if (0.1f < m_mipmapBlurSize) {
+//					// adjust blur size according to texel aspect
+//					float texelAspect = (m_projector.aspectRatio * m_textureHeight)/(float)m_textureWidth;
+//					float blurSizeH = m_mipmapBlurSize;
+//					float blurSizeV = m_mipmapBlurSize;
+//					if (texelAspect < 1.0f) {
+//						blurSizeV *= texelAspect;
+//					}
+//					else {
+//						blurSizeH /= texelAspect;
+//					}
+//					// blur parameters
+//					if (m_singlePassMipmapBlur) {
+//						blurH = GetDownsampleBlurParam(2.0f + 2.0f*blurSizeH, m_blurFilter);
+//						blurV = GetDownsampleBlurParam(2.0f + 2.0f*blurSizeV, m_blurFilter);
+//						Vector4 weight = new Vector4(blurH.weight.x * blurV.weight.x, blurH.weight.x * blurV.weight.y, blurH.weight.y * blurV.weight.x, blurH.weight.y * blurV.weight.y);
+//						float a = 0.25f/(weight.x + weight.y + weight.z + weight.w);
+//						weight.x = Mathf.Round(255*a*weight.x)/255.0f;
+//						weight.y = Mathf.Round(255*a*weight.y)/255.0f;
+//						weight.z = Mathf.Round(255*a*weight.z)/255.0f;
+//						weight.w = 0.25f - weight.x - weight.y - weight.z;
+//						m_downsampleShader.SetVector(s_downSampleBlurWeightParamID, weight);
+//					}
+//					else {
+//						blurH = GetBlurParam(blurSizeH, m_blurFilter);
+//						blurV = GetBlurParam(blurSizeV, m_blurFilter);
+//						blurH.tap = (blurH.tap - 3); // index of pass
+//						blurV.tap = (blurV.tap - 3) + 1; // index of pass
+//						m_blurShader.SetVector(s_blurOffsetHParamID, blurH.offset);
+//						m_blurShader.SetVector(s_blurOffsetVParamID, blurV.offset);
+//						m_blurShader.SetVector(s_blurWeightHParamID, blurH.weight);
+//						m_blurShader.SetVector(s_blurWeightVParamID, blurV.weight);
+//					}
+//				}
+//				int w = m_textureWidth >> 1;
+//				int h = m_textureHeight >> 1;
+//				RenderTexture tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
+//				tempRT.filterMode = FilterMode.Bilinear;
+//				bool downSampleWithBlur = m_singlePassMipmapBlur && 0.1f < m_mipmapBlurSize;
+//				if (downSampleWithBlur) {
+//					SetDownsampleBlurOffsetParams(blurH, blurV, w, h);
+//				}
+//				if (srcRT == m_shadowTexture) {
+//					if (downSampleWithBlur) {
+//						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 5);
+//					}
+//					else {
+//						Graphics.Blit(srcRT, tempRT, m_copyMipmapShader, 1);
+//					}
+//				}
+//				else {
+//					Graphics.Blit(srcRT, tempRT, m_downsampleShader, downSampleWithBlur ? 4 : 0);
+//					RenderTexture.ReleaseTemporary(srcRT);
+//				}
+//				srcRT = tempRT;
+//				int i = 0;
+//				float falloff = 1.0f;
+//				for ( ; ; ) {
+//					if (0.1f < m_mipmapBlurSize && !m_singlePassMipmapBlur) {
+//						tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
+//						tempRT.filterMode = FilterMode.Bilinear;
+//						tempRT.wrapMode = TextureWrapMode.Clamp;
+//						srcRT.wrapMode = TextureWrapMode.Clamp;
+//						Graphics.Blit(srcRT, tempRT, m_blurShader, blurH.tap);
+//						srcRT.DiscardContents();
+//						Graphics.Blit(tempRT, srcRT, m_blurShader, blurV.tap);
+//						RenderTexture.ReleaseTemporary(tempRT);
+//					}
+//					if (m_mipmapFalloff == MipmapFalloff.Linear) {
+//						falloff = ((float)(m_mipLevel - i))/(m_mipLevel + 1.0f);
+//					}
+//					else if (m_mipmapFalloff == MipmapFalloff.Custom && m_customMipmapFalloff != null && 0 < m_customMipmapFalloff.Length) {
+//						falloff = m_customMipmapFalloff[Mathf.Min(i, m_customMipmapFalloff.Length-1)];
+//					}
+//					m_copyMipmapShader.SetFloat(s_falloffParamID, falloff);
+//					m_copyMipmapShader.SetFloat(s_falloffParamID, falloff);
+//					m_shadowTexture.DiscardContents(); // To avoid Tiled GPU perf warning. It just tells GPU not to copy back the rendered image to a tile buffer. It won't destroy the rendered image.
+//					++i;
+//					Graphics.SetRenderTarget(m_shadowTexture, i);
+//					Graphics.Blit(srcRT, m_copyMipmapShader, 0);
+//					EraseShadowOnBoarder(w, h);
+//					w = Mathf.Max(1, w >> 1);
+//					h = Mathf.Max(1, h >> 1);
+//					if (i == m_mipLevel || w <= 4 || h <= 4) {
+//						RenderTexture.ReleaseTemporary(srcRT);
+//						break;
+//					}
+//					tempRT = RenderTexture.GetTemporary(w, h, 0, m_shadowTexture.format, RenderTextureReadWrite.Linear);
+//					tempRT.filterMode = FilterMode.Bilinear;
+//					if (downSampleWithBlur) {
+//						SetDownsampleBlurOffsetParams(blurH, blurV, w, h);
+//						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 4);
+//					}
+//					else {
+//						Graphics.Blit(srcRT, tempRT, m_downsampleShader, 0);
+//					}
+//					RenderTexture.ReleaseTemporary(srcRT);
+//					srcRT = tempRT;
+//				}
+//				while (1 <= w || 1 <= h) {
+//					++i;
+//					Graphics.SetRenderTarget(m_shadowTexture, i);
+//					GL.Clear(false, true, new Color(1,1,1,0));
+//					w = w >> 1;
+//					h = h >> 1;
+//				}
+//			}
+//			m_shadowTextureValid = true;
 		}
 		void EraseShadowOnBoarder(int w, int h)
 		{

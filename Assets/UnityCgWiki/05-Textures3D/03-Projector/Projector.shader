@@ -47,7 +47,7 @@ Shader "Custom/Projector"
          {
             if (input.posProj.w > 0.0) // in front of projector?
             {
-                return tex2Dproj(_ShadowTex, input.posProj);
+                return tex2Dproj(_ShadowTex, UNITY_PROJ_COORD(input.posProj));
             }
             else // behind projector
             {
