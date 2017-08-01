@@ -5,8 +5,8 @@ using UnityEngine.Rendering;
 
 [RequireComponent(typeof(ProjectorShadowRender))]
 [ExecuteInEditMode]
-public class DrawWithTarget : MonoBehaviour {
-
+public class TargetDrawer : MonoBehaviour {
+	 
 	[System.Serializable]
 	public struct ReplaceShader {
 		public string renderType;
@@ -24,9 +24,9 @@ public class DrawWithTarget : MonoBehaviour {
 	private Camera shadowCamera;
 
 	public bool renderChildren;
-
+	[SerializeField]
 	private LayerMask layerMask;
-
+	[SerializeField]
 	private ReplaceShader[] replacementShaders;
 
 	private bool isCommandBufferDirty;
@@ -96,7 +96,9 @@ public class DrawWithTarget : MonoBehaviour {
 	 
 	void CreateCommandBuffer(){
 		cmdBuffer = new CommandBuffer();
+		cmdBuffer.name = "RendererToCamera";
 		AttachCommandBuffer ();
+		SetCommandBufferDirty();
 	}
 
 	void AttachCommandBuffer(){

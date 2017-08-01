@@ -96,7 +96,7 @@ public class ProjectorShadowRender : MonoBehaviour {
 		shadowCamera.useOcclusionCulling = false;
 		shadowCamera.renderingPath = RenderingPath.Forward;
 		shadowCamera.nearClipPlane = 0.01f;
-		shadowCamera.hideFlags = HideFlags.None;
+		shadowCamera.hideFlags = HideFlags.HideInInspector;
 		#if UNITY_5_6_OR_NEWER
 		shadowCamera.forceIntoRenderTexture = true;
 		#endif
@@ -163,6 +163,10 @@ public class ProjectorShadowRender : MonoBehaviour {
 		isInitialized = false;
 	}
 
+	void OnPreRender(){
+		shadowTexture.DiscardContents();
+
+	}
 
 	void OnPostRender(){
 		//		Graphics.SetRenderTarget(renderTexture);
