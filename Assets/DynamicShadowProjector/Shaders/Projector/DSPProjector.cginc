@@ -113,7 +113,7 @@ fixed4 DSPCalculateFinalShadowColor(fixed4 texColor, DSP_V2F_PROJECTOR i)
 fixed4 DSPProjectorFrag(DSP_V2F_PROJECTOR i) : SV_Target
 {
 	fixed4 shadow = tex2Dproj(_ShadowTex, UNITY_PROJ_COORD(i.uvShadow));
-	return shadow;//DSPCalculateFinalShadowColor(shadow, i);
+	return DSPCalculateFinalShadowColor(shadow, i);
 }
 
 fixed4 DSPProjectorFragLight(DSP_V2F_PROJECTOR_LIGHT i) : SV_Target

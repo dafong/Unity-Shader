@@ -1,8 +1,7 @@
-﻿Shader "Custom/Shadow/ProjectorShadow"
+﻿Shader "Custom/ProjectorShadow/ShadowRender"
 {
 	Properties
 	{
-		_RenderTexture ("Texture", 2D) = "white" {}
 		_MaskTexture("Mask Texture", 2D)  = "white" {}
 	}
 	SubShader
@@ -27,7 +26,7 @@
 			#include "UnityCG.cginc"
 
 
-			sampler2D _RenderTexture; 
+			sampler2D _ShadowTex; 
  			sampler2D _MaskTexture;
          
             float4x4 unity_Projector;
@@ -59,7 +58,7 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 col = tex2Dproj(_RenderTexture,UNITY_PROJ_COORD(i.uvProj));
+				fixed4 col = tex2Dproj(_ShadowTex,UNITY_PROJ_COORD(i.uvProj));
 				fixed4 mask= tex2Dproj(_MaskTexture,UNITY_PROJ_COORD(i.uvProj));
 				// apply fog
 
