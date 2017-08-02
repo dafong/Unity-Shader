@@ -7,6 +7,23 @@ using UnityEngine.Rendering;
 [ExecuteInEditMode]
 public class ProjectorShadowRender : MonoBehaviour {
 
+	public enum SuperSample {
+		x1  = 1,
+		x4  = 2,
+		x16 = 4,
+	}
+
+	public enum MultiSample {
+		x1 = 1,
+		x2 = 2,
+		x4 = 4,
+		x8 = 8,
+	}
+
+	public enum BlurFilter {
+		Uniform = 0,
+		Gaussian,
+	}
 
 	private RenderTexture shadowTexture;
 
@@ -14,11 +31,42 @@ public class ProjectorShadowRender : MonoBehaviour {
 
 	private Projector projector;
 
-	public int textureWidth = 128;
+	[SerializeField]
+	[Tooltip("antialiasing use super sampling")]
+	private SuperSample superSampling = SuperSample.x1;
 
-	public int textureHeight = 128;
+	[SerializeField]
+	[Tooltip("antialiasing use muti sampling")]
+	private MultiSample mutiSampling = MultiSample.x1;
+
+	[SerializeField]
+	[Tooltip("blur mode")]
+	public BlurFilter blurFilter = BlurFilter.Uniform;
+
+	[SerializeField]
+	[Tooltip("high blur level make shadow more blurry")]
+	private int blurLevel = 0;
+
+	[SerializeField]
+	[Tooltip("blur filter size")]
+	private float blurSize = 0;
+
+	[SerializeField]
+	private Color shadowColor = Color.black;
+	[SerializeField]
+	private int textureWidth = 128;
+	[SerializeField]
+	private int textureHeight = 128;
+	[SerializeField]
+	private Material eraseShadowMat;
+	[SerializeField]
+	private Material downSampleMat;
+	[SerializeField]
+	private Material blurMat;
 
 	private bool isInitialized = false;
+
+	private int s_Offset;
 
 
 	public RenderTexture ShadowTexture {
@@ -33,6 +81,8 @@ public class ProjectorShadowRender : MonoBehaviour {
 	public bool IsInitialized{
 		get { return isInitialized; }
 	}
+
+
 
 	public int TextureWidth{
 		get { return textureWidth; }
@@ -58,6 +108,10 @@ public class ProjectorShadowRender : MonoBehaviour {
 		Initialize (); 
 		//		Shader.SetGlobalTexture
 		//		shadowCamera.SetReplacementShader(drawShader,"RenderType");
+	}
+
+	void InitShaderProperties(){
+		s_Offset = Shader.PropertyToID("_Offset");
 	}
 	 
 	//when script is loaded or a value is changed in the inspector
@@ -89,7 +143,7 @@ public class ProjectorShadowRender : MonoBehaviour {
 	void SetupCamera(){
 		shadowCamera.RemoveAllCommandBuffers ();
 		shadowCamera.depth = -100;
-//		shadowCamera.cullingMask = 0;
+		shadowCamera.cullingMask = 0;
 
 		shadowCamera.clearFlags = CameraClearFlags.SolidColor;
 		shadowCamera.backgroundColor = new Color(1,1,1,0);
@@ -130,6 +184,19 @@ public class ProjectorShadowRender : MonoBehaviour {
 
 	}
 
+	bool NeedTemporaryTexture{
+		get { 
+			return superSampling != SuperSample.x1 
+				|| mutiSampling  != MultiSample.x1
+				|| IsShadowHasColor;
+		}
+	}
+
+	bool IsShadowHasColor{
+		get { 
+			return shadowColor.a != 1 || (shadowColor.r + shadowColor.g + shadowColor.b) != 0;
+		}
+	}
 
 	void OnEnable(){
 		if (shadowCamera != null) {
@@ -156,7 +223,22 @@ public class ProjectorShadowRender : MonoBehaviour {
 		shadowCamera.fieldOfView  = projector.fieldOfView;
 		shadowCamera.aspect = projector.aspectRatio;
 		shadowCamera.farClipPlane = projector.farClipPlane;
+	}
 
+	void EraseShadowOnBoarder(int w, int h){
+		float x = 1.0f - 1.0f/w;
+		float y = 1.0f - 1.0f/h;
+		eraseShadowMat.SetPass(0);
+		GL.Begin(GL.LINES);
+		GL.Vertex3(-x,-y,0);
+		GL.Vertex3( x,-y,0);
+		GL.Vertex3( x,-y,0);
+		GL.Vertex3( x, y,0);
+		GL.Vertex3( x, y,0);
+		GL.Vertex3(-x, y,0);
+		GL.Vertex3(-x, y,0);
+		GL.Vertex3(-x,-y,0);
+		GL.End();
 	}
 
 	void OnDestroy(){
@@ -165,41 +247,71 @@ public class ProjectorShadowRender : MonoBehaviour {
 
 	void OnPreRender(){
 		shadowTexture.DiscardContents();
+		if (NeedTemporaryTexture) {
+			RenderTexture rt = RenderTexture.GetTemporary (
+				textureWidth  * (int)superSampling,
+				textureHeight * (int)superSampling,
+				0,
+				shadowTexture.format, 
+				RenderTextureReadWrite.Linear,
+				(int)mutiSampling);
+			shadowCamera.targetTexture = rt;
+		}
 
 	}
 
 	void OnPostRender(){
-		//		Graphics.SetRenderTarget(renderTexture);
-		//		projector.material.SetTexture("_RenderTexture",renderTexture);
-//		projector.material.SetTexture ("_ShadowTex", shadowTexture);
+		RenderTexture src = shadowCamera.targetTexture;
+		RenderTexture dst = shadowTexture;
+		if (NeedTemporaryTexture) {
+			if (blurLevel > 0) {
+				dst = RenderTexture.GetTemporary (
+					textureWidth,
+					textureHeight,
+					0,
+					shadowTexture.format,
+					RenderTextureReadWrite.Linear);
+				dst.filterMode = FilterMode.Bilinear;
+			}
+			downSampleMat.color = shadowColor;
+			int pass = 2;
+			Graphics.Blit (src, dst, downSampleMat, IsShadowHasColor ? pass + 1 : pass );
+			//if NeedTemporaryTexture the src must be temp rendertexture
+			shadowCamera.targetTexture = shadowTexture;
+			RenderTexture.ReleaseTemporary (src);
+			src = dst;
+
+
+		}
+
+		if (blurLevel > 0) {
+//			dst = RenderTexture.GetTemporary (
+//				textureWidth,
+//				textureHeight,
+//				0,
+//				shadowTexture.format,
+//				RenderTextureReadWrite.Linear);
+//			dst.filterMode = FilterMode.Bilinear;
+//			dst.wrapMode   = TextureWrapMode.Clamp;
+
+			float offsetH = blurSize / textureWidth;
+			float offsetV = blurSize / textureHeight;
+			blurMat.SetVector (s_Offset, new Vector4 (offsetH,offsetV,0,0));
+			for (int i = 0; i < blurLevel - 1; i++) {
+				Graphics.Blit (src, dst, blurMat);
+				src.DiscardContents ();
+				RenderTexture temp = src;
+				src = dst;
+				dst = temp;
+			}
+//			RenderTexture.ReleaseTemporary (dst);
+			Graphics.Blit (src, shadowTexture, blurMat);
+			RenderTexture.ReleaseTemporary (src); 
+		}
+
+		Graphics.SetRenderTarget(shadowTexture);
+		EraseShadowOnBoarder (textureWidth, textureHeight);
 	}
-
-//	void LateUpdate(){
-//		buffer.DrawRenderer (targetRenderer,material);
-//	}
-
-//	void OnEnable(){
-//		DetachCommandBuffer ();
-//		AttachCommandBuffer ();
-//	}
-//
-//
-//	void OnDisable(){
-//		DetachCommandBuffer ();
-//	}
-//
-//	void AttachCommandBuffer(){ 
-//		buffer = new CommandBuffer ();
-//		m_camera.AddCommandBuffer (CameraEvent.BeforeImageEffectsOpaque,buffer);	
-//	}
-//
-//	void DetachCommandBuffer(){
-//		if (buffer == null)
-//			return;
-//		m_camera.RemoveCommandBuffer (CameraEvent.BeforeImageEffectsOpaque, buffer);
-//	}
-//
-
 
 
 }
