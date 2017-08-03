@@ -6,7 +6,7 @@
 		_Offset ("Offset", Range (-1, -10)) = -1.0
 	}
 	Subshader {
-		Tags {"Queue"="Transparent-1"} 
+		Tags {"Queue"="Transparent-1"}
 		UsePass "DynamicShadowProjector/Projector/Shadow Without Falloff/PASS"
 	}
 }

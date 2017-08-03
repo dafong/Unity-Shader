@@ -593,7 +593,7 @@ namespace DynamicShadowProjector {
 #if UNITY_5_6
 			// workaround for Unity 5.6
 			// Unity 5.6 has a bug whereby a temporary render texture does not work if m_camera.targetTexture != null. This bug is fixed in Unity 2017.
-//			m_camera.targetTexture = null;
+			m_camera.targetTexture = null;
 #endif
 			m_camera.Render();
 			m_isRenderingFromUpdate = false;
@@ -923,9 +923,9 @@ namespace DynamicShadowProjector {
 			// workaround for Unity 5.6
 			// Unity 5.6 has a bug whereby a temporary render texture does not work if m_camera.targetTexture != null. This bug is fixed in Unity 2017.
 			// However, this workaround might conflict with VR support. If you have a problem with VR SDK, please let us know via e-mail (support@nyahoon.com).
-//			if (srcRT != m_shadowTexture) {
-//				m_camera.targetTexture = null;
-//			}
+			if (srcRT != m_shadowTexture) {
+				m_camera.targetTexture = null;
+			}
 #else
 			m_camera.targetTexture = m_shadowTexture;
 #endif

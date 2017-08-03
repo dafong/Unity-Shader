@@ -106,6 +106,7 @@ public class ProjectorShadowRender : MonoBehaviour {
 	 
 	void Awake(){
 		Initialize (); 
+		InitShaderProperties ();
 		//		Shader.SetGlobalTexture
 		//		shadowCamera.SetReplacementShader(drawShader,"RenderType");
 	}
@@ -248,6 +249,7 @@ public class ProjectorShadowRender : MonoBehaviour {
 	void OnPreRender(){
 		shadowTexture.DiscardContents();
 		if (NeedTemporaryTexture) {
+			//if need temporary texture we must render the camera to temporary texture 
 			RenderTexture rt = RenderTexture.GetTemporary (
 				textureWidth  * (int)superSampling,
 				textureHeight * (int)superSampling,
@@ -264,7 +266,9 @@ public class ProjectorShadowRender : MonoBehaviour {
 		RenderTexture src = shadowCamera.targetTexture;
 		RenderTexture dst = shadowTexture;
 		if (NeedTemporaryTexture) {
+			//camera.targetTexture is temporary texture
 			if (blurLevel > 0) {
+				//if need blur we blit src to another temporary texture
 				dst = RenderTexture.GetTemporary (
 					textureWidth,
 					textureHeight,
@@ -276,27 +280,29 @@ public class ProjectorShadowRender : MonoBehaviour {
 			downSampleMat.color = shadowColor;
 			int pass = 2;
 			Graphics.Blit (src, dst, downSampleMat, IsShadowHasColor ? pass + 1 : pass );
-			//if NeedTemporaryTexture the src must be temp rendertexture
+			//here the src is temporary so must be release
 			shadowCamera.targetTexture = shadowTexture;
 			RenderTexture.ReleaseTemporary (src);
 			src = dst;
-
-
 		}
 
+		dst = shadowTexture;
 		if (blurLevel > 0) {
-//			dst = RenderTexture.GetTemporary (
-//				textureWidth,
-//				textureHeight,
-//				0,
-//				shadowTexture.format,
-//				RenderTextureReadWrite.Linear);
-//			dst.filterMode = FilterMode.Bilinear;
-//			dst.wrapMode   = TextureWrapMode.Clamp;
-
+			if (blurLevel > 1) {
+				dst = RenderTexture.GetTemporary (
+					textureWidth,
+					textureHeight,
+					0,
+					shadowTexture.format,
+					RenderTextureReadWrite.Linear);
+				dst.filterMode = FilterMode.Bilinear;
+				dst.wrapMode   = TextureWrapMode.Clamp;
+			}
+				
 			float offsetH = blurSize / textureWidth;
 			float offsetV = blurSize / textureHeight;
 			blurMat.SetVector (s_Offset, new Vector4 (offsetH,offsetV,0,0));
+
 			for (int i = 0; i < blurLevel - 1; i++) {
 				Graphics.Blit (src, dst, blurMat);
 				src.DiscardContents ();
@@ -304,9 +310,13 @@ public class ProjectorShadowRender : MonoBehaviour {
 				src = dst;
 				dst = temp;
 			}
-//			RenderTexture.ReleaseTemporary (dst);
-			Graphics.Blit (src, shadowTexture, blurMat);
+			if (dst != shadowTexture) {
+				RenderTexture.ReleaseTemporary (dst);
+				dst = shadowTexture;
+			}
+			Graphics.Blit (src, dst, blurMat);
 			RenderTexture.ReleaseTemporary (src); 
+
 		}
 
 		Graphics.SetRenderTarget(shadowTexture);

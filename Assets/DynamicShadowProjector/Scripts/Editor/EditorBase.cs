@@ -11,19 +11,10 @@ using UnityEditor;
 
 namespace DynamicShadowProjector.Editor {
 	public class EditorBase : UnityEditor.Editor {
-		protected static GUIContent[] s_textureSizeDisplayOption = new GUIContent[] {
-			new GUIContent("16"), 
-			new GUIContent("32"), 
-			new GUIContent("64"), 
-			new GUIContent("128"), 
-			new GUIContent("256"), 
-			new GUIContent("512")};
+		protected static GUIContent[] s_textureSizeDisplayOption = new GUIContent[] {new GUIContent("16"), new GUIContent("32"), new GUIContent("64"), new GUIContent("128"), new GUIContent("256"), new GUIContent("512")};
 		protected static int[] s_textureSizeOption = new int[] {16, 32, 64, 128, 256, 512};
-
 		protected static GUIContent[] s_blurLevelDisplayOption = new GUIContent[] {new GUIContent("0"), new GUIContent("1"), new GUIContent("2 (Not Recommended)"), new GUIContent("3 (Not Recommended)")};
-
 		protected static int[] s_blurLevelOption = new int[] {0, 1, 2, 3};
-
 		GUIStyle m_richTextStyle;
 		protected GUIStyle richTextStyle
 		{
