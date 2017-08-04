@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 [ExecuteInEditMode]
-public class Blur : MonoBehaviour {
+public class SimpleBlur : MonoBehaviour {
 
 	public Material blurMat;
 
