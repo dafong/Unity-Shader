@@ -14,7 +14,7 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			
+
 			#include "UnityCG.cginc"
 			struct appdata
 			{
@@ -23,7 +23,7 @@
 			struct v2f
 			{
 				float4 vertex : SV_POSITION;
-			};            
+			};
 
             float4 Center, Normal;
 
@@ -43,7 +43,7 @@
 				o.vertex   = mul(unity_MatrixVP, wPos);
 				return o;
 			}
-			
+
 			fixed4 frag (v2f i) : SV_Target
 			{
 				return fixed4(0,0,0,1);
