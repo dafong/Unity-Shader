@@ -4,7 +4,8 @@
 	{
 		_Color("Diffuse Color",Color) = (1,1,1,1)
 		_SpecColor("Specular Color",Color) = (1,1,1,1)
-		_Shininess("Shininess",Float) = 10
+		_ShininessFactor("Shininess Factor",Range(0,10)) = 10
+		_FresnelFactor("Fresnel Factor" , Range(0,10)) = 5 
 	}
 	SubShader
 	{
@@ -34,7 +35,8 @@
 
 			uniform float4 _Color;
 			uniform float4 _SpecColor;
-			uniform float _Shininess;
+			uniform float _ShininessFactor;
+			uniform float _FresnelFactor;
 			
 			v2f vert (appdata v)
 			{
@@ -62,8 +64,8 @@
 				if(dot(lightDir,normalDir) > 0){
 					float3 cosine  = max(0,dot(reflect(-lightDir,normalDir),viewDir));
 					float3 halfwayDir = normalize(lightDir + viewDir);
-					float w = pow(1 - max(0,dot(halfwayDir,viewDir)),5);
-					specularReflect= attenuation * lerp(_SpecColor.rgb,float3(1,1,1),w) * _LightColor0.rgb * pow(cosine,_Shininess);
+					float w = pow(1 - max(0,dot(halfwayDir,viewDir)),_FresnelFactor);
+					specularReflect= attenuation * lerp(_SpecColor.rgb,float3(1,1,1),w) * _LightColor0.rgb * pow(cosine,_ShininessFactor);
 				}
 
 				return float4(diffuseReflect + specularReflect ,1);
