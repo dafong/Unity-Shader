@@ -1,0 +1,4 @@
+*.asset
+*.exr
+*.asset.meta
+*.exr.meta
