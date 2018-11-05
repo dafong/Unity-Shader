@@ -47,7 +47,9 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				// sample the texture
+				// sample the depth texture, 深度存在R 通道里高精度值
+                //https://docs.unity3d.com/Manual/SL-CameraDepthTexture.html
+                //https://docs.unity3d.com/Manual/SL-CameraDepthTexture.html
 				fixed col =Linear01Depth(tex2D(_CameraDepthTexture , i.uv).r);
                 
 		

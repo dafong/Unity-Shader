@@ -7,7 +7,8 @@ public class DepthTexture : MonoBehaviour {
     public Material material;
 
     private void Awake() {
-        //Camera.main.depthTextureMode = DepthTextureMode.Depth;
+        //在移动设备上需要手动设置该值才会产生深度图纹理 在桌面上不需要
+        Camera.main.depthTextureMode = DepthTextureMode.Depth;
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination) {
